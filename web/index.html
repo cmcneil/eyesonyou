@@ -26,40 +26,48 @@
 		<script src="loadEyeModelGltf.js"></script>
 		<!-- STL and PLY have no material info in the format so they won't work -->
 		<script>
-			// Our Javascript will go here.
-      var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        // Set up websocket:
+        var hostname = window.location.hostname;
+        var ws = new WebSocket("ws://"+hostname+":5678/");
+        ws.onmessage = function (event) {
+            console.log(event.data)
+        };
+        
 
-      var renderer = new THREE.WebGLRenderer();
-      renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.setClearColor(0x323232);
-      document.body.appendChild( renderer.domElement );
-			var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // Our Javascript will go here.
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setClearColor(0x323232);
+        document.body.appendChild( renderer.domElement );
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
       // var geometry = new THREE.BoxGeometry( 1, 1, 1 );
       // var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
       // var cube = new THREE.Mesh( geometry, material );
       // scene.add( cube );
-			scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-			scene.add(new THREE.DirectionalLight(0xffffff, 0.5));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        scene.add(new THREE.DirectionalLight(0xffffff, 0.5));
 
-      camera.position.z = 150;
+        camera.position.z = 150;
 
-			var model;
-			var eyeballs = [];
-			loadEyeModelGltf().then((m) => {
-				model = m;
-				console.log(model);
-				// scene.add(model)
-				for (let i = 0; i < 10; i++) {
-					const e = model.clone();
-					e.position.set(Math.random() * 100 - 50, Math.random() * 100 - 50,
-												 Math.random()*50 - 25);
-					e.scale.setScalar(5);
-					scene.add(e);
-					eyeballs.push(e);
-				}
-			});
+        var model;
+        var eyeballs = [];
+        loadEyeModelGltf().then((m) => {
+            model = m;
+            console.log(model);
+            // scene.add(model)
+            for (let i = 0; i < 10; i++) {
+                const e = model.clone();
+                e.position.set(Math.random() * 100 - 50, Math.random() * 100 - 50,
+                                                Math.random()*50 - 25);
+                e.scale.setScalar(5);
+                scene.add(e);
+                eyeballs.push(e);
+            }
+        });
 
       function animate() {
       	requestAnimationFrame( animate );
