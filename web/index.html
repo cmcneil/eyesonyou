@@ -27,10 +27,12 @@
 		<!-- STL and PLY have no material info in the format so they won't work -->
 		<script>
         // Set up websocket:
+	console.log('Setting up websockets at '+window.location.hostname);
         var hostname = window.location.hostname;
-        var ws = new WebSocket("ws://"+hostname+":5678/");
+        var ws = new WebSocket("ws://"+hostname+":8888");
+	//ws.send('Hello!');
         ws.onmessage = function (event) {
-            console.log(event.data)
+            console.log(event.data);
         };
         
 
