@@ -10,35 +10,30 @@
 	</head>
 	<body>
 		<script src="https://threejs.org/build/three.js"></script>
-		<script src="https://threejs.org/examples/js/loaders/MTLLoader.js"></script>
-		<script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
-		<script src="https://threejs.org/examples/js/loaders/PLYLoader.js"></script>
-		<script src="https://threejs.org/examples/js/loaders/TDSLoader.js"></script>
-		<script src="https://threejs.org/examples/js/loaders/FBXLoader.js"></script>
-		<script src="https://threejs.org/examples/js/loaders/STLLoader.js"></script>
 		<script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
-		<script src="https://threejs.org/examples/js/loaders/RGBELoader.js"></script>
 		<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
-		<script src="loadEyeModelObj.js"></script>
-		<script src="loadEyeModel3ds.js"></script>
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.1/math.min.js"></script>-->
 		<script src="inflate.min.js"></script> <!-- needed by fbx loader -->
-		<script src="loadEyeModelFbx.js"></script>
 		<script src="loadEyeModelGltf.js"></script>
+		<script src="eyeKinematics.js"></script>
 		<!-- STL and PLY have no material info in the format so they won't work -->
 		<script>
         // Set up websocket:
 	console.log('Setting up websockets at '+window.location.hostname);
         var hostname = window.location.hostname;
         var ws = new WebSocket("ws://"+hostname+":8888");
-	//ws.send('Hello!');
+	     // ws.send('Hello!');
+	     var object_position = [0, 0, 5];
         ws.onmessage = function (event) {
-            console.log(event.data);
+            // console.log(event.data);
+            var message = JSON.parse(event.data);
+            object_position = message.xyz;
         };
         
 
         // Our Javascript will go here.
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.5, 10 );
 
         var renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -53,37 +48,46 @@
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         scene.add(new THREE.DirectionalLight(0xffffff, 0.5));
 
-        camera.position.z = 150;
-
-        var model;
-        var eyeballs = [];
-        loadEyeModelGltf().then((m) => {
-            model = m;
-            console.log(model);
-            // scene.add(model)
-            for (let i = 0; i < 10; i++) {
-                const e = model.clone();
-                e.position.set(Math.random() * 100 - 50, Math.random() * 100 - 50,
-                                                Math.random()*50 - 25);
-                e.scale.setScalar(5);
-                scene.add(e);
-                eyeballs.push(e);
-            }
-        });
-
-      function animate() {
+        camera.position.z = 0.5
+        
+        function animate() {
       	requestAnimationFrame( animate );
+      	updatePosition(eye_model, object_position);
 
         // cube.rotation.x += 0.01;
         // cube.rotation.y += 0.01;
-				for (var e of eyeballs) {
-					e.rotation.x += 0.01*(Math.random() - 0.5);
-					e.rotation.y += 0.01*(Math.random() - 0.5);
-				}
+	//			for (var e of eyeballs) {
+	//				e.rotation.x += 0.01*(Math.random() - 0.5);
+	//				e.rotation.y += 0.01*(Math.random() - 0.5);
+	//			}
 
       	renderer.render( scene, camera );
       }
-      animate();
+
+        var eye_model;
+        var eyeballs = [];
+        loadEyeModelGltf().then((m) => {
+            eye_model = m;
+            eye_model.scale.set(0.05, 0.05, 0.05);
+            // eye_model.scale.x = 0.05;
+            // eye_model.scale.y = 0.05;
+            // eye_model.scale.z = 0.05;
+            // eye_model.children[0].scale(0.05, 0.05, 0.05);
+            console.log(eye_model);
+            scene.add(eye_model)
+            //for (let i = 0; i < 10; i++) {
+            //    const e = model.clone();
+            //    e.position.set(Math.random() * 100 - 50, Math.random() * 100 - 50,
+            //                                    Math.random()*50 - 25);
+            //    e.scale.setScalar(5);
+            //    scene.add(e);
+            //    eyeballs.push(e);
+            //}
+            animate();
+        });
+
+      
+      // animate();
 		</script>
 	</body>
 </html>
